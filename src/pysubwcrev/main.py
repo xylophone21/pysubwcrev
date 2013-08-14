@@ -27,6 +27,7 @@ def gather(workingCopyDir, opts):
 
     client = pysvn.Client()
     svnEntry  = client.info(workingCopyDir)
+    lastCommitRev = svnEntry.commit_revision.number
 
     maxdate = 0
     maxrev = 0
@@ -114,6 +115,9 @@ def gather(workingCopyDir, opts):
         'wclockdateutc' : strftime("%Y/%m/%d %H:%M:%S", gmtime(lockeddata)),
         'wclockowner'   : lockowner,
         'wclockcomment' : lockcomment,
+		
+		#added by pysubwcrev, not supported by subwcrev
+		'wclcrev'		: lastCommitRev,
     }
 
     return results
@@ -170,6 +174,9 @@ def process(inFile, outFile, info, opts):
 
         tmp = strftime_process(tmp,"WCLOCKDATE",localtime(info['_wclockdate']))
         tmp = strftime_process(tmp,"WCLOCKDATEUTC",gmtime(info['_wclockdate']))
+		
+		#added by pysubwcrev, not supported by subwcrev	
+        tmp = re.sub(r'\$WCLCREV\$', str(info['wclcrev']), tmp)
 
         fout.write(tmp)
 

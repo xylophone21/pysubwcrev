@@ -1,22 +1,23 @@
 // Test file for SubWCRev
 
-char *Revision      = "2777";
+char *LastCommitRevision      = "2803";
+char *Revision      = "3581";
 char *Revision16    = "$WCREV&0xFF$";
 char *Revisionp100  = "$WCREV+100$";
 char *Revisionm100  = "$WCREV-100$";
-char *Modified      = "Modified";
+char *Modified      = "Not modified";
 char *Unversioned   = "$WCUNVER?Unversioned items found:no unversioned items$";
-char *Date          = "2013/05/10 16:10:14";
-char *CustDate      = "Fri, 10 May 2013";
-char *DateUTC       = "2013/05/10 08:10:14";
-char *CustDateUTC   = "Fri, 10 May 2013";
-char *TimeNow       = "2013/05/10 19:32:41";
-char *TimeNowUTC    = "2013/05/10 11:32:41";
-char *RevRange      = "2777";
+char *Date          = "2013/05/13 17:40:48";
+char *CustDate      = "Mon, 13 May 2013";
+char *DateUTC       = "2013/05/13 09:40:48";
+char *CustDateUTC   = "Mon, 13 May 2013";
+char *TimeNow       = "2013/08/14 17:16:22";
+char *TimeNowUTC    = "2013/08/14 09:16:22";
+char *RevRange      = "3581";
 char *Mixed         = "Not mixed";
 char *ExtAllFixed   = "$WCEXTALLFIXED?All externals fixed:Not all externals fixed$";
 char *IsTagged      = "$WCISTAGGED?Tagged:Not tagged$";
-char *URL           = "svn://optscm/matrix/trunk/apps/unitTest/jni/Tools";
+char *URL           = "svn://optscm/matrix/trunk/javamodules/Tuning";
 char *isInSVN       = "versioned";
 char *needslck      = "FALSE";
 char *islocked      = "not locked";
@@ -27,7 +28,7 @@ char *lockcust      = "Thu, 01 January 1970";
 char *lockown       = "";
 char *lockcmt       = "";
 
-#if 1
+#if 0
 #error Source is modified
 #endif
 
