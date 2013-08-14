@@ -51,6 +51,8 @@ def gather(workingCopyDir, opts):
                 continue;
     
             if stat.entry:
+                #print("url="+stat.entry.url+ " revision=" + str(stat.entry.commit_revision.number) + " revision.number=" + str(stat.entry.revision.number))
+				
                 # skip directories if not specified
                 if stat.entry.kind == pysvn.node_kind.dir and 'f' not in opts:
                     continue;
@@ -123,20 +125,22 @@ def gather(workingCopyDir, opts):
     return results
 
 def boolean_process(inline,replacekey,boolean_value):
-    match = re.search(r'\$'+replacekey+'\?(.*):(.*)\$', inline)
+    match = re.search(r'\$'+replacekey+'\?(.*?):(.*?)\$', inline)
     if match:
+        #print(match.group(0))
+        #print(match.group(1))
         idx = 1
         if not boolean_value:
             idx = 2
-        return re.sub(r'\$'+replacekey+'.*\$', match.group(idx), inline)
+        return re.sub(r'\$'+replacekey+'.*?\$', match.group(idx), inline)
     else:
         return inline
 
 def strftime_process(inline,replacekey,date_value):
-    match = re.search(r'\$'+replacekey+'=(.*)\$', inline)
+    match = re.search(r'\$'+replacekey+'=(.*?)\$', inline)
     if match:        
         datestr = strftime(match.group(1), date_value)
-        return re.sub(r'\$'+replacekey+'=.*\$', datestr, inline)
+        return re.sub(r'\$'+replacekey+'=.*?\$', datestr, inline)
     else:
         return inline
 
