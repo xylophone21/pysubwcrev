@@ -17,6 +17,8 @@
 
 from time import strftime, gmtime, localtime
 import os, pysvn, re, sys
+import locale
+import getopt
 
 def gather(workingCopyDir, opts):
 
@@ -52,7 +54,6 @@ def gather(workingCopyDir, opts):
     
             if stat.entry:
                 #print("url="+stat.entry.url+ " revision=" + str(stat.entry.commit_revision.number) + " revision.number=" + str(stat.entry.revision.number))
-				
                 # skip directories if not specified
                 if stat.entry.kind == pysvn.node_kind.dir and 'f' not in opts:
                     continue;
@@ -117,9 +118,9 @@ def gather(workingCopyDir, opts):
         'wclockdateutc' : strftime("%Y/%m/%d %H:%M:%S", gmtime(lockeddata)),
         'wclockowner'   : lockowner,
         'wclockcomment' : lockcomment,
-		
-		#added by pysubwcrev, not supported by subwcrev
-		'wclcrev'		: lastCommitRev,
+
+        #added by pysubwcrev, not supported by subwcrev
+        'wclcrev'		: lastCommitRev,
     }
 
     return results
@@ -178,8 +179,8 @@ def process(inFile, outFile, info, opts):
 
         tmp = strftime_process(tmp,"WCLOCKDATE",localtime(info['_wclockdate']))
         tmp = strftime_process(tmp,"WCLOCKDATEUTC",gmtime(info['_wclockdate']))
-		
-		#added by pysubwcrev, not supported by subwcrev	
+
+        #added by pysubwcrev, not supported by subwcrev	
         tmp = re.sub(r'\$WCLCREV\$', str(info['wclcrev']), tmp)
 
         fout.write(tmp)
@@ -191,38 +192,46 @@ def doArgs(argstring):
     return [c for c in ['n', 'm', 'd', 'f', 'e'] if argstring.find(c) > 0]
 
 if __name__ == "__main__":
-    usage = """usage: pysubwcrev workingCopyPath [SrcVersionFile DestVersionFile] [-nmdfe]
+    usage = """usage: pysubwcrev [-nmdfe] [-l LC_ALL] workingCopyPath SrcVersionFile DestVersionFile
 """
 
-    if len(sys.argv) not in (2, 3, 4, 5):
-        sys.exit(usage)
-
-    workingCopyDir = os.path.abspath(sys.argv[1].strip())
-
-    #pysvn issue: http://tigris-scm.10930.n7.nabble.com/Bug-with-status-on-a-file-if-path-uses-as-separator-td78156.html
-    workingCopyDir = workingCopyDir.replace("\\","/")
-    
+    workingCopyDir = None
     shouldProcess = False
     destFile = ''
     srcFile = ''
     opts = []
+    
+    try:
+        tmpopts,args = getopt.getopt(sys.argv[1:], "nmdfel:", ["locale="]);
+        
+        #check options
+        for opt,arg in tmpopts:
+            if opt in ("-l", "--locale"):
+                print("Set LC_ALL to " + arg)
+                locale.setlocale( locale.LC_ALL, arg.strip()) #en_GB.UTF-8
+            elif len(opt) == 2:
+                opts.append(opt[1])
 
-    if len(sys.argv) == 3: # just path and args
-        opts = doArgs(sys.argv[2])
-    elif len(sys.argv) == 4: # just files
-        srcFile = os.path.abspath(sys.argv[2].strip())
-        if not os.path.exists(srcFile):
-            sys.exit('Source file not found')
-        destFile = os.path.abspath(sys.argv[3].strip())
-        shouldProcess = True
-    elif len(sys.argv) == 5: # files and args
-        srcFile = os.path.abspath(sys.argv[2].strip())
-        if not os.path.exists(srcFile):
-            sys.exit('Source file not found')
-        destFile = os.path.abspath(sys.argv[3].strip())
-        shouldProcess = True
-        opts = doArgs(sys.argv[4])
+        #check workingCopyPath SrcVersionFile DestVersionFile
+        if len(args) == 1:
+            workingCopyDir = os.path.abspath(args[0].strip())
+            #pysvn issue: http://tigris-scm.10930.n7.nabble.com/Bug-with-status-on-a-file-if-path-uses-as-separator-td78156.html
+            workingCopyDir = workingCopyDir.replace("\\","/")
+        elif len(args) == 3:
+            workingCopyDir = os.path.abspath(args[0].strip())
+            #pysvn issue: http://tigris-scm.10930.n7.nabble.com/Bug-with-status-on-a-file-if-path-uses-as-separator-td78156.html
+            workingCopyDir = workingCopyDir.replace("\\","/")
+            
+            srcFile = os.path.abspath(args[1].strip())
+            if not os.path.exists(srcFile):
+                sys.exit('Source file ' + srcFile + ' not found')
 
+            destFile = os.path.abspath(args[2].strip())
+            shouldProcess = True
+            
+    except getopt.GetoptError:
+        sys.exit(usage)
+    
     #print opts
 
     repoInfo = gather(workingCopyDir, opts)
